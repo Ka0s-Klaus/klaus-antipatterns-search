@@ -1,0 +1,43 @@
+# Binarios
+/antipatterns
+/dist/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test
+*.test
+*.out
+coverage.html
+coverage.out
+
+# Go workspace
+go.work
+go.work.sum
+
+# Reportes de cliente (nunca se publican)
+reports/masorange/
+reports/mango/
+
+# Entorno local
+.env
+.env.*
+!.env.example
+
+# K* workspace local
+CLAUDE.md
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Binario compilado localmente
+antipatterns

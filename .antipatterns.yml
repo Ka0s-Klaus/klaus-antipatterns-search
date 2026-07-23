@@ -1,0 +1,56 @@
+# .antipatterns.yml — Configuración de ejemplo
+# Copiar a la raíz del repo a analizar y ajustar según el proyecto.
+
+# ── Umbrales por regla ──────────────────────────────────────────────────────
+thresholds:
+  god_object:
+    methods: 20       # nº métodos por clase antes de considerarla God Object
+    loc: 400          # líneas de código por clase
+  function_loc: 80    # líneas por función
+  function_params: 7  # nº parámetros por función
+  cyclomatic: 15      # complejidad ciclomática máxima por función
+  cognitive: 20       # complejidad cognitiva máxima
+  duplication_pct: 5  # % mínimo de duplicación para reportar
+  magic_min_count: 3  # apariciones mínimas de un literal para reportarlo
+
+# ── Severidades por anti-patrón ────────────────────────────────────────────
+severities:
+  god_object: high
+  cyclomatic: medium
+  duplication: medium
+  circular_deps: high
+  magic_numbers: low
+  large_function: low
+  dead_code: low
+
+# ── Formatos de salida ─────────────────────────────────────────────────────
+output:
+  formats:
+    - console
+    - json
+    - markdown
+  dir: reports/
+
+# ── Perfiles multi-org (tokens en variables de entorno, NUNCA aquí) ─────────
+orgs:
+  ka0s-klaus:
+    token_env: GH_TOKEN_KA0S
+    output: reports/ka0s/
+    publish: true
+
+  # Ejemplo cliente (datos sensibles — publish: false)
+  # masorange:
+  #   token_env: GH_TOKEN_MASORANGE
+  #   output: reports/masorange/
+  #   publish: false
+
+# ── Exclusiones ────────────────────────────────────────────────────────────
+exclude:
+  dirs:
+    - vendor/
+    - node_modules/
+    - .git/
+    - testdata/
+  files:
+    - "**/*_test.go"
+    - "**/*.pb.go"   # protobuf generado
