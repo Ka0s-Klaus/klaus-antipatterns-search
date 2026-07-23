@@ -50,17 +50,24 @@ type ExcludeConfig struct {
 	Files []string `yaml:"files"`
 }
 
+type MagicNumbersConfig struct {
+	Enabled bool     `yaml:"enabled"`
+	Exclude []string `yaml:"exclude"`
+}
+
 type Config struct {
-	Thresholds ThresholdsConfig    `yaml:"thresholds"`
-	Severities SeveritiesConfig    `yaml:"severities"`
-	Output     OutputConfig        `yaml:"output"`
-	Orgs       map[string]OrgConfig `yaml:"orgs"`
-	Exclude    ExcludeConfig       `yaml:"exclude"`
+	Thresholds   ThresholdsConfig    `yaml:"thresholds"`
+	MagicNumbers MagicNumbersConfig  `yaml:"magic_numbers"`
+	Severities   SeveritiesConfig    `yaml:"severities"`
+	Output       OutputConfig        `yaml:"output"`
+	Orgs         map[string]OrgConfig `yaml:"orgs"`
+	Exclude      ExcludeConfig       `yaml:"exclude"`
 }
 
 // Default returns a Config with the recommended out-of-the-box thresholds.
 func Default() *Config {
 	return &Config{
+		MagicNumbers: MagicNumbersConfig{Enabled: true},
 		Thresholds: ThresholdsConfig{
 			GodObject:      GodObjectConfig{Methods: 20, LOC: 400},
 			FunctionLOC:    80,
