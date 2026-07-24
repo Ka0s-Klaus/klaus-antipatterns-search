@@ -3,15 +3,18 @@
 ## 🤔 ¿Qué hago? ¿Cómo lo hago? ¿Y para qué lo hago?
 
 ### ¿Qué hago?
+
 Publico Klaus-antipatterns-search como **herramienta de distribución open-source**: binarios pre-compilados para todas las plataformas disponibles en GitHub Releases, `action.yml` actualizado para descargar el binario en vez de compilar desde fuente, y documentación de instalación lista para usuarios externos.
 
 ### ¿Cómo lo hago?
+
 1. 🏗️ **GoReleaser** — `.goreleaser.yml` cross-compila para linux/darwin/windows × amd64/arm64, genera archives tar.gz/zip y publica en GitHub Releases con checksums SHA-256.
 2. 🔁 **Release workflow** — `.github/workflows/release.yml` se dispara con cualquier tag `v*`, ejecuta tests antes de publicar y llama a GoReleaser.
 3. ⬇️ **action.yml renovado** — el paso de build (`setup-go` + `go build`) se sustituye por un paso de descarga que: detecta OS/arch, resuelve la versión correcta, descarga el archive, verifica el checksum y extrae el binario al PATH.
 4. 📚 **README** — nueva sección "Instalación" con instrucciones para GitHub Action, binario curl y `go install`.
 
 ### ¿Para qué lo hago?
+
 - **Velocidad en CI**: descargar un binario de ~5 MB tarda ~2 segundos; compilar desde fuente con `go build` puede tardar 30-60 segundos incluyendo `setup-go` y descarga de módulos.
 - **Reproducibilidad**: la acción pinada a `@v1.0.0` ejecuta exactamente ese binario, no lo que estuviera en `main` cuando alguien hizo push.
 - **Adopción externa**: cualquier organización puede usar la herramienta sin tener Go instalado.
@@ -87,7 +90,7 @@ permissions:
 
 ### Artefactos publicados por release
 
-```
+```text
 antipatterns_1.0.0_linux_amd64.tar.gz
 antipatterns_1.0.0_linux_arm64.tar.gz
 antipatterns_1.0.0_darwin_amd64.tar.gz
@@ -98,7 +101,7 @@ antipatterns_1.0.0_checksums.txt          ← SHA-256 de todos los anteriores
 
 ### Inyección de versión
 
-```
+```text
 -X main.version={{.Version}}
 ```
 
@@ -233,8 +236,22 @@ git push origin v1.0.0
 
 ---
 
+## 🧪 Validación post-publicación (Fase 6)
+
+Tras publicar `v1.0.0`, se añadió un **integration test end-to-end** que verifica que la action funciona correctamente en un runner real de GitHub:
+
+- **Thresholds calibrados** en `.antipatterns.yml`: `function_loc: 80 → 40`, `cyclomatic: 15 → 10`
+- **Auto-escaneo** del propio repo contra `Ka0s-Klaus/Klaus-antipatterns-search@v1.0.0` — 16 findings detectados
+- **SARIF validado** por `github/codeql-action/upload-sarif@v4` (actualizado desde v3)
+- Workflow: `.github/workflows/test-action.yml`
+
+Ver [Fase 6 — Integration Test](fase-6-integration-test.md) para el detalle completo.
+
+---
+
 ## 🔗 Documentos relacionados
 
 - [Multi-org Scanner (Fase 4)](fase-4-multi-org.md) — `scan-org` que consume el binario publicado
 - [SARIF + GitHub Action (Fase 3)](fase-3-sarif-action.md) — versión anterior de `action.yml` (referencia)
+- [Integration Test (Fase 6)](fase-6-integration-test.md) — validación end-to-end de la action publicada
 - [README principal](../README.md) — instrucciones de instalación para usuarios finales

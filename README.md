@@ -1,6 +1,6 @@
 # 🔍 Klaus antipatterns-search
 
-> Multi-language anti-pattern detector — CLI, GitHub Action and multi-org scanner powered by Go + tree-sitter
+> Multi-language anti-pattern detector — CLI, GitHub Action and multi-org scanner powered by Go (go/ast nativo) + adaptadores OSS
 
 [![K*](https://img.shields.io/badge/K%2A-AI%20Workspace-7057ff)](https://github.com/Ka0s-Klaus)
 [![Go](https://img.shields.io/badge/Go-1.22+-00ADD8?logo=go)](https://go.dev)
@@ -20,7 +20,7 @@ Soy un detector de **anti-patrones de código** multi-lenguaje. Analizo reposito
 
 Combino dos enfoques complementarios:
 
-1. **Detectores nativos** sobre AST unificado via [`tree-sitter`](https://tree-sitter.github.io/tree-sitter/) — un único motor de análisis para ~40+ lenguajes.
+1. **Detectores nativos** sobre el AST de Go via [`go/ast`](https://pkg.go.dev/go/ast) (stdlib pura, cero CGO) — God Object, funciones gigantes y magic numbers en ficheros `.go`. Extensión tree-sitter disponible como punto de extensión futuro para otros lenguajes.
 2. **Adaptadores a linters OSS** (`jscpd`, `radon`, `gocyclo`, `madge`, etc.) — orquestados por subproceso con degradación elegante si no están instalados.
 
 Todos los hallazgos se normalizan al mismo modelo `Finding` y se renderizan en múltiples formatos.
@@ -37,7 +37,7 @@ Porque trabajar con muchos repositorios en organizaciones distintas (Ka0s-Klaus,
 graph TD
     CLI["🖥️ CLI / GitHub Action"] --> CORE["🎛️ Core Orchestrator"]
     CORE --> LANG["🔍 Language Detector"]
-    LANG --> NATIVE["🌳 Native Detectors\n(tree-sitter)"]
+    LANG --> NATIVE["🌳 Native Detectors\n(go/ast — stdlib Go)"]
     LANG --> ADAPTERS["🔌 OSS Adapters\n(jscpd · radon · gocyclo · madge)"]
     NATIVE --> MODEL["📦 model.Finding"]
     ADAPTERS --> MODEL
@@ -107,7 +107,7 @@ antipatterns scan ./mi-repo
 
 | Anti-patrón | Método | Fuente |
 | --- | --- | --- |
-| 🐘 God Object / God Class | métricas de clase (LOC, métodos, fan-in/out) | nativo (tree-sitter) |
+| 🐘 God Object / God Class | métricas de clase (LOC, métodos, fan-in/out) | nativo (go/ast) |
 | 🌀 Complejidad excesiva | complejidad ciclomática / cognitiva | OSS: `radon`, `gocyclo`, `eslint` |
 | 🔁 Código duplicado | detección de clones tipo-1/tipo-2 | OSS: `jscpd` |
 | 🔄 Dependencias circulares | grafo de imports + detección de ciclos | OSS: `madge`, `go list` |
@@ -145,8 +145,8 @@ thresholds:
   god_object:
     methods: 20
     loc: 400
-  function_loc: 80
-  cyclomatic: 15
+  function_loc: 40    # funciones de más de 40 líneas
+  cyclomatic: 10      # complejidad ciclomática máxima por función
   duplication_pct: 5
 ```
 
@@ -157,11 +157,12 @@ thresholds:
 | Fase | Contenido | Estado |
 | --- | --- | --- |
 | **0 — Andamiaje** | módulo Go, CLI Cobra, modelo Finding, renderers console+JSON | ✅ Completado |
-| **1 — MVP nativo** | tree-sitter + detectores: God Object, funciones gigantes, magic numbers | ✅ Completado |
+| **1 — MVP nativo** | go/ast + detectores: God Object, funciones gigantes, magic numbers | ✅ Completado |
 | **2 — Adaptadores OSS** | `jscpd`, `madge`, `radon`, `gocyclo`, skip elegante | ✅ Completado |
 | **3 — SARIF + Action** | GitHub Action, comentario en PR, Code Scanning | ✅ Completado |
 | **4 — Multi-org** | `scan-org`, perfiles, paralelismo, panel agregado | ✅ Completado |
 | **5 — Publicación** | README, licencia, releases cross-compilados, action.yml binary | ✅ Completado |
+| **6 — Integration test** | Self-scan en CI, calibración de thresholds, codeql-action v4 | ✅ Completado |
 
 ---
 
