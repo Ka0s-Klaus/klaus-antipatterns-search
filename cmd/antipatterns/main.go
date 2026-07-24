@@ -73,13 +73,15 @@ func scanCmd() *cobra.Command {
 				return renderer.NewJSON(w).Render(findings)
 			case "sarif":
 				return renderer.NewSARIF(w, version, root).Render(findings)
+			case "markdown", "md":
+				return renderer.NewMarkdown(w, version, root).Render(findings)
 			default:
 				return renderer.NewConsole(w).Render(findings)
 			}
 		},
 	}
 
-	cmd.Flags().StringVar(&format, "format", "console", "output format: console, json, sarif")
+	cmd.Flags().StringVar(&format, "format", "console", "output format: console, json, sarif, markdown")
 	cmd.Flags().StringVarP(&output, "output", "o", "", "write output to file (default: stdout)")
 	cmd.Flags().BoolVarP(&verbose, "verbose", "v", false, "print detector and adapter progress to stderr")
 	return cmd
@@ -125,13 +127,15 @@ to the target organisation.`,
 			switch format {
 			case "json":
 				return renderer.NewOrgJSON(w).Render(report)
+			case "markdown", "md":
+				return renderer.NewOrgMarkdown(w, version).Render(report)
 			default:
 				return renderer.NewOrgConsole(w).Render(report)
 			}
 		},
 	}
 
-	cmd.Flags().StringVar(&format, "format", "console", "output format: console, json")
+	cmd.Flags().StringVar(&format, "format", "console", "output format: console, json, markdown")
 	cmd.Flags().StringVarP(&output, "output", "o", "", "write output to file (default: stdout)")
 	cmd.Flags().IntVar(&workers, "workers", 4, "number of parallel repo scanners")
 	return cmd

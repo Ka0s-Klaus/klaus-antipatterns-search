@@ -213,4 +213,5 @@ Con los adaptadores instalados, el self-scan del repo produce más findings que 
 - [Adaptadores OSS (Fase 2)](fase-2-adaptadores-oss.md) — arquitectura y contrato de los adaptadores
 - [Integration Test (Fase 6)](fase-6-integration-test.md) — self-scan en CI contra @v1.0.0
 - [Publicación (Fase 5)](fase-5-publicacion.md) — release pipeline y GoReleaser
+- [Markdown Report (Fase 8)](fase-8-markdown-report.md) — informe accionable con checkboxes `- [ ]`
 - [README principal](../README.md) — roadmap completo del proyecto
