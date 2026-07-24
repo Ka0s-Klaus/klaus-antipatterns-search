@@ -8,7 +8,7 @@ Añado salida en formato **SARIF 2.1.0** a Klaus-antipatterns-search y lo empaqu
 ### ¿Cómo lo hago?
 1. 🔐 **Renderer SARIF** (`internal/renderer/sarif.go`) — transforma `[]model.Finding` al formato SARIF 2.1.0 estándar, con catálogo de reglas y nivel de severidad conforme a la spec.
 2. 🖥️ **CLI** — `--format sarif` + `--output <file>` permiten generar el fichero SARIF directamente desde la línea de comandos.
-3. ⚙️ **GitHub Action** (`action.yml`) — action composite que construye el binario desde fuente, ejecuta el scan, sube el SARIF a Code Scanning y comenta en el PR.
+3. ⚙️ **GitHub Action** (`action.yml`) — action composite que construye el binario desde fuente, ejecuta el scan, sube el SARIF a Code Scanning y comenta en el PR. *(En Fase 5 este paso pasó a descargar el binario precompilado — ver [Fase 5](fase-5-publicacion.md).)*
 4. 🔁 **Self-scan workflow** (`.github/workflows/antipatterns.yml`) — el propio repositorio se analiza con la herramienta en cada push y PR.
 
 ### ¿Para qué lo hago?
@@ -25,13 +25,13 @@ graph TD
     FINDINGS --> SARIF["🔐 SARIFRenderer\n(SARIF 2.1.0)"]
     SARIF --> FILE["📄 antipatterns.sarif"]
 
-    FILE --> CODEQL["github/codeql-action\n/upload-sarif@v3"]
+    FILE --> CODEQL["github/codeql-action\n/upload-sarif@v4"]
     CODEQL --> SECURITY["🛡️ GitHub Security tab\n(Code Scanning)"]
 
     FILE --> COMMENT["💬 gh pr comment\n(PR summary)"]
 
-    ACTION["⚙️ action.yml\n(composite action)"] --> BUILD["🔨 go build"]
-    BUILD --> CLI
+    ACTION["⚙️ action.yml\n(composite action)"] --> DL["⬇️ curl download\nbinario precompilado (Fase 5)"]
+    DL --> CLI
     ACTION --> CODEQL
     ACTION --> COMMENT
 ```
@@ -118,8 +118,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: Ka0s-Klaus/Klaus-antipatterns-search@main
+      - uses: Ka0s-Klaus/Klaus-antipatterns-search@v1.0.0
 ```
+
+> Desde Fase 5, pinear siempre a un tag (`@v1.0.0`). El uso de `@main` no es recomendado en producción.
 
 ### Inputs
 
@@ -129,7 +131,7 @@ jobs:
 | `upload-sarif` | `true` | Subir SARIF a Code Scanning |
 | `sarif-output` | `antipatterns.sarif` | Ruta del fichero SARIF |
 | `comment-pr` | `true` | Comentar resumen en PR |
-| `go-version` | `1.22` | Versión de Go para compilar |
+| `version` | `latest` | Versión del binario a descargar (e.g. `1.0.0`). ~~`go-version` eliminado en Fase 5.~~ |
 
 ### Outputs
 
@@ -140,12 +142,12 @@ jobs:
 ### Ejemplo avanzado
 
 ```yaml
-- uses: Ka0s-Klaus/Klaus-antipatterns-search@main
+- uses: Ka0s-Klaus/Klaus-antipatterns-search@v1.0.0
   with:
     path: src/
-    upload-sarif: true
+    upload-sarif: 'true'
     sarif-output: results/antipatterns.sarif
-    comment-pr: true
+    comment-pr: 'true'
 ```
 
 ### Permisos requeridos
