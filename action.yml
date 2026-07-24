@@ -23,10 +23,10 @@ inputs:
     description: 'Post a findings summary comment on pull requests (requires pull-requests: write permission)'
     required: false
     default: 'true'
-  go-version:
-    description: 'Go version used to build the tool'
+  version:
+    description: 'Release version to download (e.g. "1.2.0"). Defaults to the version matching the action ref, or "latest".'
     required: false
-    default: '1.22'
+    default: 'latest'
 
 outputs:
   findings-count:
@@ -36,17 +36,43 @@ outputs:
 runs:
   using: 'composite'
   steps:
-    - name: Set up Go
-      uses: actions/setup-go@v5
-      with:
-        go-version: ${{ inputs.go-version }}
-        cache: false
-
-    - name: Build Klaus antipatterns-search
+    - name: Download antipatterns binary
       shell: bash
-      working-directory: ${{ github.action_path }}
+      env:
+        GH_TOKEN: ${{ github.token }}
       run: |
-        go build -o "${RUNNER_TEMP}/antipatterns" ./cmd/antipatterns
+        OS=$(uname -s | tr '[:upper:]' '[:lower:]')
+        ARCH=$(uname -m)
+        case "${ARCH}" in
+          x86_64)        ARCH="amd64" ;;
+          aarch64|arm64) ARCH="arm64" ;;
+        esac
+
+        ACTION_REF="${{ github.action_ref }}"
+        INPUT_VERSION="${{ inputs.version }}"
+        if [[ "${ACTION_REF}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+ ]]; then
+          VERSION="${ACTION_REF#v}"
+        elif [ -n "${INPUT_VERSION}" ] && [ "${INPUT_VERSION}" != "latest" ]; then
+          VERSION="${INPUT_VERSION}"
+        else
+          VERSION=$(curl -sSf \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            "https://api.github.com/repos/Ka0s-Klaus/Klaus-antipatterns-search/releases/latest" \
+            | jq -r '.tag_name | ltrimstr("v")')
+        fi
+
+        ARCHIVE="antipatterns_${VERSION}_${OS}_${ARCH}.tar.gz"
+        BASE_URL="https://github.com/Ka0s-Klaus/Klaus-antipatterns-search/releases/download/v${VERSION}"
+
+        curl -sSfL "${BASE_URL}/${ARCHIVE}" -o "${RUNNER_TEMP}/${ARCHIVE}"
+        curl -sSfL "${BASE_URL}/antipatterns_${VERSION}_checksums.txt" \
+          -o "${RUNNER_TEMP}/checksums.txt"
+
+        cd "${RUNNER_TEMP}"
+        grep "${ARCHIVE}" checksums.txt | sha256sum --check --status
+
+        tar -xzf "${ARCHIVE}" -C "${RUNNER_TEMP}" antipatterns
+        chmod +x "${RUNNER_TEMP}/antipatterns"
         echo "${RUNNER_TEMP}" >> "${GITHUB_PATH}"
 
     - name: Run anti-pattern scan

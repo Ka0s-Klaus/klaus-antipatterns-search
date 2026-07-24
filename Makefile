@@ -3,7 +3,7 @@
 BINARY := antipatterns
 MODULE  := github.com/Ka0s-Klaus/Klaus-antipatterns-search
 VERSION := $(shell git describe --tags --always --dirty 2>/dev/null || echo "dev")
-LDFLAGS := -ldflags "-X $(MODULE)/cmd/antipatterns.version=$(VERSION)"
+LDFLAGS := -ldflags "-X main.version=$(VERSION)"
 
 build:
 	go build $(LDFLAGS) -o $(BINARY) ./cmd/antipatterns

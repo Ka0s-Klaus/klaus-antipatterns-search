@@ -5,6 +5,7 @@
 [![K*](https://img.shields.io/badge/K%2A-AI%20Workspace-7057ff)](https://github.com/Ka0s-Klaus)
 [![Go](https://img.shields.io/badge/Go-1.22+-00ADD8?logo=go)](https://go.dev)
 [![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
+[![Release](https://img.shields.io/github/v/release/Ka0s-Klaus/Klaus-antipatterns-search)](https://github.com/Ka0s-Klaus/Klaus-antipatterns-search/releases)
 [![Kanban](https://img.shields.io/badge/Kanban-%2321-blue)](https://github.com/orgs/Ka0s-Klaus/projects/21)
 
 ---
@@ -47,6 +48,47 @@ graph TD
 
     SCAN["🌐 Multi-org Scanner"] --> CORE
     CONFIG["⚙️ .antipatterns.yml"] --> CORE
+```
+
+---
+
+## 📦 Instalación
+
+### GitHub Action (recomendado)
+
+```yaml
+- uses: Ka0s-Klaus/Klaus-antipatterns-search@v1.0.0
+  with:
+    path: .
+    upload-sarif: 'true'
+    comment-pr: 'true'
+```
+
+> Pinear siempre a un tag (`@v1.0.0`) — nunca usar `@main` en producción.
+
+### Binario precompilado (linux/darwin/windows · amd64/arm64)
+
+```bash
+# Descargar la última release para linux/amd64
+VERSION=$(curl -sSf https://api.github.com/repos/Ka0s-Klaus/Klaus-antipatterns-search/releases/latest \
+  | jq -r '.tag_name | ltrimstr("v")')
+curl -sSfL \
+  "https://github.com/Ka0s-Klaus/Klaus-antipatterns-search/releases/download/v${VERSION}/antipatterns_${VERSION}_linux_amd64.tar.gz" \
+  | tar -xzf - antipatterns
+sudo mv antipatterns /usr/local/bin/
+```
+
+### `go install` (para desarrolladores Go)
+
+```bash
+go install github.com/Ka0s-Klaus/Klaus-antipatterns-search/cmd/antipatterns@latest
+```
+
+### Verificación
+
+```bash
+antipatterns version
+antipatterns scan ./mi-repo
 ```
 
 ---
@@ -118,8 +160,8 @@ thresholds:
 | **1 — MVP nativo** | tree-sitter + detectores: God Object, funciones gigantes, magic numbers | ✅ Completado |
 | **2 — Adaptadores OSS** | `jscpd`, `madge`, `radon`, `gocyclo`, skip elegante | ✅ Completado |
 | **3 — SARIF + Action** | GitHub Action, comentario en PR, Code Scanning | ✅ Completado |
-| **4 — Multi-org** | `scan-org`, perfiles, paralelismo, panel agregado | 🔄 En progreso |
-| **5 — Publicación** | README, licencia, releases cross-compilados | ⏳ Pendiente |
+| **4 — Multi-org** | `scan-org`, perfiles, paralelismo, panel agregado | ✅ Completado |
+| **5 — Publicación** | README, licencia, releases cross-compilados, action.yml binary | 🔄 En progreso |
 
 ---
 
