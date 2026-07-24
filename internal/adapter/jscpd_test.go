@@ -66,11 +66,11 @@ func TestParseJscpdOutputInvalidJSON(t *testing.T) {
 }
 
 func TestJscpdSkipsWhenNotInstalled(t *testing.T) {
-	// If jscpd is not on PATH, Jscpd must return nil, nil (graceful skip).
-	// We cannot guarantee the tool is absent, so only verify no panic/error.
+	// If jscpd is absent: must return nil findings + ErrToolNotFound.
+	// If jscpd is present in CI: err must be nil. Either case is valid.
 	findings, err := Jscpd(t.TempDir(), config.Default())
-	if err != nil {
-		t.Fatalf("Jscpd must not return error when tool is missing, got: %v", err)
+	if err != nil && err != ErrToolNotFound {
+		t.Fatalf("Jscpd must return nil or ErrToolNotFound, got: %v", err)
 	}
-	_ = findings // may be nil or populated depending on installation
+	_ = findings
 }

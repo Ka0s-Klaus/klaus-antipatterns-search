@@ -24,7 +24,7 @@ type radonEntry struct {
 func Radon(root string, cfg *config.Config) ([]model.Finding, error) {
 	radonPath, err := exec.LookPath("radon")
 	if err != nil {
-		return nil, nil
+		return nil, ErrToolNotFound
 	}
 	data, err := runRadon(radonPath, root)
 	if err != nil {

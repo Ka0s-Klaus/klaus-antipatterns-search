@@ -8,9 +8,11 @@ Integro cuatro herramientas OSS de análisis de código como adaptadores de Klau
 ### ¿Cómo lo hago?
 Cada adaptador sigue el mismo patrón:
 1. 🔍 Verifica si la herramienta está en `PATH` (`exec.LookPath`)
-2. ⚡ Si no está instalada → **skip elegante** (devuelve `nil, nil`)
+2. ⚡ Si no está instalada → devuelve `nil, adapter.ErrToolNotFound` (sentinel distinguible de "0 findings")
 3. 🚀 Si está instalada → ejecuta con `exec.CommandContext` + timeout
 4. 📊 Parsea el output (JSON o texto) → `[]model.Finding`
+
+El scanner usa `errors.Is(err, adapter.ErrToolNotFound)` para distinguir "herramienta ausente" de "error de ejecución" y emitir la línea `[skip]` correcta con `--verbose`.
 
 Los adaptadores operan sobre el **directorio raíz completo** (a diferencia de los detectores nativos que van fichero a fichero).
 
@@ -27,7 +29,7 @@ graph TD
     SCANNER --> OSS["🔌 Dir-level adapters\n(Jscpd · Madge · Radon · Gocyclo)"]
 
     OSS --> LOOKUP{"exec.LookPath"}
-    LOOKUP -- "❌ no instalado" --> SKIP["nil, nil\n(skip elegante)"]
+    LOOKUP -- "❌ no instalado" --> SKIP["nil, ErrToolNotFound\n(sentinel distinguible)"]
     LOOKUP -- "✅ instalado" --> EXEC["exec.CommandContext\n+ timeout"]
     EXEC --> PARSE["parseFn(output, cfg)"]
     PARSE --> MODEL["📦 []model.Finding"]
@@ -176,4 +178,5 @@ Los tests de parsing cubren: output vacío, por debajo del umbral, por encima de
 ## 🔗 Documentos relacionados
 
 - [Detectores nativos (Fase 1)](fase-1-detectores-nativos.md) — LargeFunction, GodObject, MagicNumbers
+- [Verbose flag + OSS local (Fase 7)](fase-7-verbose-oss-local.md) — instalación de adaptadores y flag `--verbose`
 - [README principal](../README.md) — roadmap completo del proyecto

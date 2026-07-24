@@ -75,9 +75,11 @@ func TestParseRadonOutputInvalidJSON(t *testing.T) {
 }
 
 func TestRadonSkipsWhenNotInstalled(t *testing.T) {
+	// If radon is absent: must return nil findings + ErrToolNotFound.
+	// If radon is present in CI: err must be nil. Either case is valid.
 	findings, err := Radon(t.TempDir(), config.Default())
-	if err != nil {
-		t.Fatalf("Radon must not return error when tool is missing, got: %v", err)
+	if err != nil && err != ErrToolNotFound {
+		t.Fatalf("Radon must return nil or ErrToolNotFound, got: %v", err)
 	}
 	_ = findings
 }

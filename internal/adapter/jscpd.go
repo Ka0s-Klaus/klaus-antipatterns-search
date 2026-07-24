@@ -36,7 +36,7 @@ type jscpdFile struct {
 func Jscpd(root string, cfg *config.Config) ([]model.Finding, error) {
 	jscpdPath, err := exec.LookPath("jscpd")
 	if err != nil {
-		return nil, nil
+		return nil, ErrToolNotFound
 	}
 	data, err := runJscpd(jscpdPath, root)
 	if err != nil {
