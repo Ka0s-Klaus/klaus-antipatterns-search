@@ -5,10 +5,10 @@ import (
 	"path/filepath"
 
 	"github.com/Ka0s-Klaus/Klaus-antipatterns-search/internal/config"
+	"github.com/Ka0s-Klaus/Klaus-antipatterns-search/internal/detector"
 	"github.com/Ka0s-Klaus/Klaus-antipatterns-search/internal/model"
 )
 
-// detectorFunc is the signature all Fase-1+ detectors will implement.
 type detectorFunc func(path string, cfg *config.Config) ([]model.Finding, error)
 
 // Scanner orchestrates directory walking and anti-pattern detection.
@@ -18,7 +18,14 @@ type Scanner struct {
 }
 
 func New(cfg *config.Config) *Scanner {
-	return &Scanner{cfg: cfg}
+	return &Scanner{
+		cfg: cfg,
+		detectors: []detectorFunc{
+			detector.LargeFunction,
+			detector.GodObject,
+			detector.MagicNumbers,
+		},
+	}
 }
 
 // Run walks root recursively and runs all registered detectors on each file.
