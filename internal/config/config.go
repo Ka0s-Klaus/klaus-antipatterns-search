@@ -40,9 +40,12 @@ type OutputConfig struct {
 }
 
 type OrgConfig struct {
-	TokenEnv string `yaml:"token_env"`
-	Output   string `yaml:"output"`
-	Publish  bool   `yaml:"publish"`
+	TokenEnv        string   `yaml:"token_env"`
+	Output          string   `yaml:"output"`
+	Publish         bool     `yaml:"publish"`
+	ExcludeRepos    []string `yaml:"exclude_repos"`
+	IncludeForks    bool     `yaml:"include_forks"`
+	IncludeArchived bool     `yaml:"include_archived"`
 }
 
 type ExcludeConfig struct {
