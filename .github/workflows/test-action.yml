@@ -1,0 +1,40 @@
+name: 🧪 Integration Test — Action self-scan
+
+on:
+  push:
+    branches:
+      - 'GH-14-*'
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  security-events: write
+  pull-requests: write
+
+jobs:
+  self-scan:
+    name: Self-scan with Klaus-antipatterns-search@v1.0.0
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install gocyclo (OSS adapter verification)
+        run: |
+          go install github.com/fzipp/gocyclo/cmd/gocyclo@latest
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+
+      - name: Run Klaus antipatterns-search@v1.0.0
+        id: scan
+        uses: Ka0s-Klaus/Klaus-antipatterns-search@v1.0.0
+        with:
+          path: .
+          upload-sarif: 'true'
+          comment-pr: 'true'
+
+      - name: Print findings count
+        run: |
+          echo "::notice::Klaus antipatterns-search found ${{ steps.scan.outputs.findings-count }} anti-pattern(s)"

@@ -6,9 +6,9 @@ thresholds:
   god_object:
     methods: 20       # nº métodos por clase antes de considerarla God Object
     loc: 400          # líneas de código por clase
-  function_loc: 80    # líneas por función
+  function_loc: 40    # líneas por función
   function_params: 7  # nº parámetros por función
-  cyclomatic: 15      # complejidad ciclomática máxima por función
+  cyclomatic: 10      # complejidad ciclomática máxima por función
   cognitive: 20       # complejidad cognitiva máxima
   duplication_pct: 5  # % mínimo de duplicación para reportar
   magic_min_count: 3  # apariciones mínimas de un literal para reportarlo
@@ -51,6 +51,7 @@ exclude:
     - node_modules/
     - .git/
     - testdata/
+    - dist/
   files:
     - "**/*_test.go"
     - "**/*.pb.go"   # protobuf generado
