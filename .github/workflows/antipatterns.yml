@@ -1,0 +1,54 @@
+name: Anti-pattern scan
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+  security-events: write
+  pull-requests: write
+
+jobs:
+  scan:
+    name: Detect anti-patterns
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
+      - name: Build antipatterns
+        run: go build -o antipatterns ./cmd/antipatterns
+
+      - name: Run anti-pattern scan
+        run: ./antipatterns scan . --format sarif --output antipatterns.sarif
+
+      - name: Upload SARIF to GitHub Code Scanning
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: antipatterns.sarif
+          category: 'Klaus-antipatterns-search'
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          COUNT=$(jq '.runs[0].results | length' antipatterns.sarif)
+          if [ "${COUNT}" -eq 0 ]; then
+            BODY="## ✅ Klaus antipatterns-search\n\nNo anti-patterns detected."
+          else
+            SUMMARY=$(./antipatterns scan . --format console 2>&1 | head -40)
+            BODY="## 🔍 Klaus antipatterns-search — ${COUNT} finding(s)\n\n\`\`\`\n${SUMMARY}\n\`\`\`"
+          fi
+          gh pr comment "${{ github.event.pull_request.number }}" \
+            --body "$(printf "%b" "${BODY}")" \
+            --repo "${{ github.repository }}"

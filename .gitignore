@@ -40,4 +40,4 @@ Thumbs.db
 *.swo
 
 # Binario compilado localmente
-antipatterns
+/antipatterns
