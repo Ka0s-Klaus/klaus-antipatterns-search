@@ -17,7 +17,7 @@ import (
 func Madge(root string, cfg *config.Config) ([]model.Finding, error) {
 	madgePath, err := exec.LookPath("madge")
 	if err != nil {
-		return nil, nil
+		return nil, ErrToolNotFound
 	}
 	data, err := runMadge(madgePath, root)
 	if err != nil {

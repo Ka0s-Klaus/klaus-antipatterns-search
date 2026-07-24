@@ -47,9 +47,11 @@ func TestParseMadgeOutputMultipleCycles(t *testing.T) {
 }
 
 func TestMadgeSkipsWhenNotInstalled(t *testing.T) {
+	// If madge is absent: must return nil findings + ErrToolNotFound.
+	// If madge is present in CI: err must be nil. Either case is valid.
 	findings, err := Madge(t.TempDir(), config.Default())
-	if err != nil {
-		t.Fatalf("Madge must not return error when tool is missing, got: %v", err)
+	if err != nil && err != ErrToolNotFound {
+		t.Fatalf("Madge must return nil or ErrToolNotFound, got: %v", err)
 	}
 	_ = findings
 }

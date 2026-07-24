@@ -18,7 +18,7 @@ import (
 func Gocyclo(root string, cfg *config.Config) ([]model.Finding, error) {
 	gocycloPath, err := exec.LookPath("gocyclo")
 	if err != nil {
-		return nil, nil
+		return nil, ErrToolNotFound
 	}
 	data, err := runGocyclo(gocycloPath, root, cfg.Thresholds.Cyclomatic)
 	if err != nil {

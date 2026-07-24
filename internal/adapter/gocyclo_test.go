@@ -77,8 +77,10 @@ func TestSplitLocation(t *testing.T) {
 
 func TestGocycloSkipsWhenNotInstalled(t *testing.T) {
 	findings, err := Gocyclo(t.TempDir(), config.Default())
-	if err != nil {
-		t.Fatalf("Gocyclo must not return error when tool is missing, got: %v", err)
+	if findings != nil {
+		t.Fatalf("Gocyclo must return nil findings when tool is missing")
 	}
-	_ = findings
+	if err != ErrToolNotFound {
+		t.Fatalf("Gocyclo must return ErrToolNotFound when tool is missing, got: %v", err)
+	}
 }

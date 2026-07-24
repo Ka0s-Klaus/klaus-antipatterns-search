@@ -34,6 +34,7 @@ func rootCmd() *cobra.Command {
 func scanCmd() *cobra.Command {
 	var format string
 	var output string
+	var verbose bool
 
 	cmd := &cobra.Command{
 		Use:   "scan [path]",
@@ -50,7 +51,12 @@ func scanCmd() *cobra.Command {
 				return fmt.Errorf("loading config: %w", err)
 			}
 
-			s := scanner.New(cfg)
+			var s *scanner.Scanner
+			if verbose {
+				s = scanner.NewVerbose(cfg, os.Stderr)
+			} else {
+				s = scanner.New(cfg)
+			}
 			findings, err := s.Run(root)
 			if err != nil {
 				return fmt.Errorf("scan: %w", err)
@@ -75,6 +81,7 @@ func scanCmd() *cobra.Command {
 
 	cmd.Flags().StringVar(&format, "format", "console", "output format: console, json, sarif")
 	cmd.Flags().StringVarP(&output, "output", "o", "", "write output to file (default: stdout)")
+	cmd.Flags().BoolVarP(&verbose, "verbose", "v", false, "print detector and adapter progress to stderr")
 	return cmd
 }
 

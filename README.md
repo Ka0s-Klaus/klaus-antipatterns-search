@@ -89,6 +89,7 @@ go install github.com/Ka0s-Klaus/Klaus-antipatterns-search/cmd/antipatterns@late
 ```bash
 antipatterns version
 antipatterns scan ./mi-repo
+antipatterns scan ./mi-repo --verbose    # muestra qué detectores y adaptadores corrieron
 ```
 
 ---
@@ -98,6 +99,7 @@ antipatterns scan ./mi-repo
 | Modo | Comando | Descripción |
 | --- | --- | --- |
 | 📁 **Local** | `antipatterns scan ./ruta` | Analiza un repo local |
+| 🔊 **Verbose** | `antipatterns scan ./ruta --verbose` | Muestra progreso de detectores y adaptadores en stderr |
 | 🔁 **CI/CD** | GitHub Action | Comenta en PR + sube SARIF |
 | 🌐 **Multi-org** | `antipatterns scan-org <perfil>` | Escanea toda una organización |
 
@@ -163,6 +165,7 @@ thresholds:
 | **4 — Multi-org** | `scan-org`, perfiles, paralelismo, panel agregado | ✅ Completado |
 | **5 — Publicación** | README, licencia, releases cross-compilados, action.yml binary | ✅ Completado |
 | **6 — Integration test** | Self-scan en CI, calibración de thresholds, codeql-action v4 | ✅ Completado |
+| **7 — Verbose + OSS local** | Flag `--verbose`, sentinel `ErrToolNotFound`, instalación adaptadores OSS | ✅ Completado |
 
 ---
 
