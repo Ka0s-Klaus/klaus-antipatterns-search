@@ -114,10 +114,10 @@ thresholds:
 
 | Fase | Contenido | Estado |
 | --- | --- | --- |
-| **0 — Andamiaje** | módulo Go, CLI Cobra, modelo Finding, renderers console+JSON | 🔄 En progreso |
-| **1 — MVP nativo** | tree-sitter + detectores: God Object, funciones gigantes, magic numbers | ⏳ Pendiente |
-| **2 — Adaptadores OSS** | `jscpd`, `madge`, `radon`, `gocyclo`, skip elegante | ⏳ Pendiente |
-| **3 — SARIF + Action** | GitHub Action, comentario en PR, Code Scanning | ⏳ Pendiente |
+| **0 — Andamiaje** | módulo Go, CLI Cobra, modelo Finding, renderers console+JSON | ✅ Completado |
+| **1 — MVP nativo** | tree-sitter + detectores: God Object, funciones gigantes, magic numbers | ✅ Completado |
+| **2 — Adaptadores OSS** | `jscpd`, `madge`, `radon`, `gocyclo`, skip elegante | ✅ Completado |
+| **3 — SARIF + Action** | GitHub Action, comentario en PR, Code Scanning | 🔄 En progreso |
 | **4 — Multi-org** | `scan-org`, perfiles, paralelismo, panel agregado | ⏳ Pendiente |
 | **5 — Publicación** | README, licencia, releases cross-compilados | ⏳ Pendiente |
 

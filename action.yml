@@ -1,0 +1,86 @@
+name: 'Klaus Antipatterns Search'
+description: 'Detect code anti-patterns across multiple languages and upload results to GitHub Code Scanning'
+author: 'Ka0s-Klaus'
+
+branding:
+  icon: 'search'
+  color: 'purple'
+
+inputs:
+  path:
+    description: 'Directory to scan (relative to repository root)'
+    required: false
+    default: '.'
+  upload-sarif:
+    description: 'Upload SARIF results to GitHub Code Scanning (requires security-events: write permission)'
+    required: false
+    default: 'true'
+  sarif-output:
+    description: 'Path for the SARIF output file'
+    required: false
+    default: 'antipatterns.sarif'
+  comment-pr:
+    description: 'Post a findings summary comment on pull requests (requires pull-requests: write permission)'
+    required: false
+    default: 'true'
+  go-version:
+    description: 'Go version used to build the tool'
+    required: false
+    default: '1.22'
+
+outputs:
+  findings-count:
+    description: 'Total number of anti-pattern findings detected'
+    value: ${{ steps.scan.outputs.findings-count }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: ${{ inputs.go-version }}
+        cache: false
+
+    - name: Build Klaus antipatterns-search
+      shell: bash
+      working-directory: ${{ github.action_path }}
+      run: |
+        go build -o "${RUNNER_TEMP}/antipatterns" ./cmd/antipatterns
+        echo "${RUNNER_TEMP}" >> "${GITHUB_PATH}"
+
+    - name: Run anti-pattern scan
+      id: scan
+      shell: bash
+      run: |
+        antipatterns scan "${{ inputs.path }}" \
+          --format sarif \
+          --output "${{ inputs.sarif-output }}"
+
+        COUNT=$(jq '.runs[0].results | length' "${{ inputs.sarif-output }}")
+        echo "findings-count=${COUNT}" >> "${GITHUB_OUTPUT}"
+
+    - name: Upload SARIF to GitHub Code Scanning
+      if: ${{ inputs.upload-sarif == 'true' }}
+      uses: github/codeql-action/upload-sarif@v3
+      with:
+        sarif_file: ${{ inputs.sarif-output }}
+        category: 'Klaus-antipatterns-search'
+
+    - name: Comment findings summary on PR
+      if: ${{ inputs.comment-pr == 'true' && github.event_name == 'pull_request' }}
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        COUNT=$(jq '.runs[0].results | length' "${{ inputs.sarif-output }}")
+        if [ "${COUNT}" -eq 0 ]; then
+          BODY="## ✅ Klaus antipatterns-search\n\nNo anti-patterns detected in \`${{ inputs.path }}\`."
+        else
+          SUMMARY=$(antipatterns scan "${{ inputs.path }}" --format console 2>&1 | head -40)
+          SECURITY_URL="${{ github.server_url }}/${{ github.repository }}/security/code-scanning"
+          BODY="## 🔍 Klaus antipatterns-search — ${COUNT} finding(s)\n\n\`\`\`\n${SUMMARY}\n\`\`\`\n\nFull details in the [Security tab](${SECURITY_URL})."
+        fi
+        gh pr comment "${{ github.event.pull_request.number }}" \
+          --body "$(printf "%b" "${BODY}")" \
+          --repo "${{ github.repository }}"
