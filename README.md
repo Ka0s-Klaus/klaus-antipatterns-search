@@ -161,7 +161,7 @@ thresholds:
 | **2 — Adaptadores OSS** | `jscpd`, `madge`, `radon`, `gocyclo`, skip elegante | ✅ Completado |
 | **3 — SARIF + Action** | GitHub Action, comentario en PR, Code Scanning | ✅ Completado |
 | **4 — Multi-org** | `scan-org`, perfiles, paralelismo, panel agregado | ✅ Completado |
-| **5 — Publicación** | README, licencia, releases cross-compilados, action.yml binary | 🔄 En progreso |
+| **5 — Publicación** | README, licencia, releases cross-compilados, action.yml binary | ✅ Completado |
 
 ---
 
