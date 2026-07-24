@@ -100,8 +100,10 @@ antipatterns scan ./mi-repo --verbose    # muestra qué detectores y adaptadores
 | --- | --- | --- |
 | 📁 **Local** | `antipatterns scan ./ruta` | Analiza un repo local |
 | 🔊 **Verbose** | `antipatterns scan ./ruta --verbose` | Muestra progreso de detectores y adaptadores en stderr |
+| 📄 **Informe Markdown** | `antipatterns scan ./ruta --format markdown --output report.md` | Genera informe accionable con checkboxes `- [ ]` por finding |
 | 🔁 **CI/CD** | GitHub Action | Comenta en PR + sube SARIF |
 | 🌐 **Multi-org** | `antipatterns scan-org <perfil>` | Escanea toda una organización |
+| 🌐📄 **Multi-org Markdown** | `antipatterns scan-org <perfil> --format markdown --output org-report.md` | Informe Markdown por org |
 
 ---
 
@@ -122,10 +124,12 @@ antipatterns scan ./mi-repo --verbose    # muestra qué detectores y adaptadores
 
 ## 📊 Formatos de reporte
 
-- **Terminal** — tabla coloreada por severidad (info/low/medium/high/critical)
-- **JSON** — `report.json` estructurado para integración con otras herramientas
-- **Markdown/HTML** — reporte navegable con métricas y enlaces a líneas afectadas
-- **SARIF** — integración con GitHub Code Scanning (pestaña Security)
+| Flag | Descripción | Uso ideal |
+| --- | --- | --- |
+| `--format console` | Tabla coloreada por severidad (defecto) | Terminal interactiva |
+| `--format json` | Array JSON estructurado | Pipelines, integración con otras herramientas |
+| `--format sarif` | SARIF 2.1.0 | GitHub Code Scanning (pestaña Security) |
+| `--format markdown` / `--format md` | Informe Markdown con checkboxes `- [ ]` por finding, agrupados por regla | Revisión humana, backlog de refactoring, PR descriptions |
 
 ---
 
@@ -166,6 +170,7 @@ thresholds:
 | **5 — Publicación** | README, licencia, releases cross-compilados, action.yml binary | ✅ Completado |
 | **6 — Integration test** | Self-scan en CI, calibración de thresholds, codeql-action v4 | ✅ Completado |
 | **7 — Verbose + OSS local** | Flag `--verbose`, sentinel `ErrToolNotFound`, instalación adaptadores OSS | ✅ Completado |
+| **8 — Markdown report** | `--format markdown` con checkboxes accionables para `scan` y `scan-org` | ✅ Completado |
 
 ---
 
