@@ -11,7 +11,10 @@ import (
 	"github.com/Ka0s-Klaus/Klaus-antipatterns-search/internal/model"
 )
 
-// GodObject flags any Go type whose method count exceeds cfg.Thresholds.GodObject.Methods.
+// GodObject detects "god object" anti-patterns: types (structs) with excessive method counts.
+// Flags types that exceed cfg.Thresholds.GodObject.Methods threshold, indicating the type name,
+// method count, LOC, and configured limits. Helps identify overly complex, god-like classes.
+// Only processes .go files.
 func GodObject(path string, cfg *config.Config) ([]model.Finding, error) {
 	if filepath.Ext(path) != ".go" {
 		return nil, nil

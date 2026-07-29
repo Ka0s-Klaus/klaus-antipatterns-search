@@ -14,23 +14,28 @@ import (
 	"github.com/Ka0s-Klaus/Klaus-antipatterns-search/internal/model"
 )
 
-// detectorFunc operates on a single file.
+// detectorFunc is the signature for native detectors: one invocation per file.
+// path is the absolute file path; returns findings or an error if the file cannot be analyzed.
 type detectorFunc func(path string, cfg *config.Config) ([]model.Finding, error)
 
-// dirAdapterFunc operates on the entire root directory (OSS tools).
+// dirAdapterFunc is the signature for OSS adapters: one invocation per directory scan.
+// root is the scan root; returns findings or an error if the tool fails or is not installed.
 type dirAdapterFunc func(root string, cfg *config.Config) ([]model.Finding, error)
 
+// namedDetector pairs a human-readable name with a detectorFunc for progress reporting.
 type namedDetector struct {
 	name string
 	fn   detectorFunc
 }
 
+// namedAdapter pairs a human-readable name with a dirAdapterFunc for progress reporting.
 type namedAdapter struct {
 	name string
 	fn   dirAdapterFunc
 }
 
 // Scanner orchestrates directory walking and anti-pattern detection.
+// It runs native detectors on each file and OSS adapters on the entire directory.
 type Scanner struct {
 	cfg         *config.Config
 	detectors   []namedDetector
@@ -38,6 +43,8 @@ type Scanner struct {
 	log         io.Writer // io.Discard = silent; os.Stderr when --verbose
 }
 
+// New creates a Scanner with default native detectors and OSS adapters, logging disabled.
+// Use NewVerbose to enable progress output.
 func New(cfg *config.Config) *Scanner {
 	return &Scanner{
 		cfg: cfg,
@@ -56,7 +63,9 @@ func New(cfg *config.Config) *Scanner {
 	}
 }
 
-// NewVerbose returns a Scanner that writes progress to w (typically os.Stderr).
+// NewVerbose creates a Scanner that writes progress reports and detector names to w.
+// Typically w is os.Stderr; use io.Discard to suppress output. Progress is printed
+// to show which native detectors and OSS adapters ran and their match counts.
 func NewVerbose(cfg *config.Config, w io.Writer) *Scanner {
 	s := New(cfg)
 	s.log = w
@@ -67,9 +76,9 @@ func (s *Scanner) logf(format string, args ...any) {
 	fmt.Fprintf(s.log, format+"\n", args...)
 }
 
-// Run walks root recursively and runs all registered detectors on each file,
-// then runs OSS dir-level adapters once on the root.
-// Returns the aggregated slice of findings.
+// Run walks the directory tree rooted at root and executes all native detectors on each .go file,
+// then executes OSS adapters once on the root directory. Returns aggregated findings from all detectors.
+// Non-fatal errors (e.g., unreadable files, missing OSS tools) are silently skipped with ErrToolNotFound.
 func (s *Scanner) Run(root string) ([]model.Finding, error) {
 	var findings []model.Finding
 

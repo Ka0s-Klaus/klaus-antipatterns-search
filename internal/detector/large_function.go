@@ -11,7 +11,9 @@ import (
 	"github.com/Ka0s-Klaus/Klaus-antipatterns-search/internal/model"
 )
 
-// LargeFunction flags any Go function whose body exceeds cfg.Thresholds.FunctionLOC lines.
+// LargeFunction detects Go functions and methods whose bodies exceed the configured threshold.
+// It flags functions with more lines than cfg.Thresholds.FunctionLOC, reporting the function
+// name, actual line count, and the configured limit. Only processes .go files.
 func LargeFunction(path string, cfg *config.Config) ([]model.Finding, error) {
 	if filepath.Ext(path) != ".go" {
 		return nil, nil

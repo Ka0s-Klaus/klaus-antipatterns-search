@@ -16,9 +16,10 @@ var trivialNumbers = map[string]bool{
 	"0": true, "1": true, "2": true,
 }
 
-// MagicNumbers flags numeric literals that appear in non-constant contexts.
-// Disabled when cfg.MagicNumbers.Enabled is false.
-// Numbers appearing fewer than cfg.Thresholds.MagicMinCount times are skipped.
+// MagicNumbers detects numeric literals (magic numbers) that appear in non-constant contexts.
+// Can be disabled via cfg.MagicNumbers.Enabled. Only flags numbers that appear at least
+// cfg.Thresholds.MagicMinCount times in the file. Trivial values (0, 1, 2) are excluded.
+// Only processes .go files. Helps identify repeated numeric literals that should be constants.
 func MagicNumbers(path string, cfg *config.Config) ([]model.Finding, error) {
 	if !cfg.MagicNumbers.Enabled {
 		return nil, nil

@@ -31,8 +31,10 @@ type jscpdFile struct {
 	Start int    `json:"start"`
 }
 
-// Jscpd runs jscpd on root and returns duplication findings.
-// Returns nil silently if jscpd is not installed or fails.
+// Jscpd adapts jscpd (JavaScript Copy Paste Detector) for all-language duplication detection.
+// Executes 'jscpd' on the directory tree, parses its JSON output, and returns duplication findings
+// normalized to model.Finding. Returns ErrToolNotFound if jscpd is not installed; all other errors
+// are non-fatal and silently skipped to enable graceful degradation.
 func Jscpd(root string, cfg *config.Config) ([]model.Finding, error) {
 	jscpdPath, err := exec.LookPath("jscpd")
 	if err != nil {

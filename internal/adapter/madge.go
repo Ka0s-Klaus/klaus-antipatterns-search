@@ -12,8 +12,10 @@ import (
 	"github.com/Ka0s-Klaus/Klaus-antipatterns-search/internal/model"
 )
 
-// Madge runs madge --circular on root and returns circular-dependency findings.
-// Returns nil silently if madge is not installed or fails.
+// Madge adapts madge (JavaScript module dependency analyzer) to detect circular dependencies.
+// Executes 'madge --circular' on the directory, parses its output, and returns circular-dependency
+// findings as model.Finding. Returns ErrToolNotFound if madge is not installed; other errors
+// are non-fatal and silently skipped to enable graceful degradation.
 func Madge(root string, cfg *config.Config) ([]model.Finding, error) {
 	madgePath, err := exec.LookPath("madge")
 	if err != nil {
