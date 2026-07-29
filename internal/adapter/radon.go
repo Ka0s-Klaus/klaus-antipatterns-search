@@ -19,8 +19,10 @@ type radonEntry struct {
 	Lineno     int    `json:"lineno"`
 }
 
-// Radon runs radon cc -j on root and returns cyclomatic-complexity findings.
-// Returns nil silently if radon is not installed or fails.
+// Radon adapts radon (Python code metrics tool) for cyclomatic complexity detection.
+// Executes 'radon cc -j' on the directory tree, parses JSON output, and returns findings
+// normalized to model.Finding. Returns ErrToolNotFound if radon is not installed; other errors
+// are non-fatal and silently skipped to enable graceful degradation.
 func Radon(root string, cfg *config.Config) ([]model.Finding, error) {
 	radonPath, err := exec.LookPath("radon")
 	if err != nil {

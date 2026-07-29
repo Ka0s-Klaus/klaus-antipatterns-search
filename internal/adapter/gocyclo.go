@@ -13,8 +13,10 @@ import (
 	"github.com/Ka0s-Klaus/Klaus-antipatterns-search/internal/model"
 )
 
-// Gocyclo runs gocyclo -over N on root and returns cyclomatic-complexity findings.
-// Returns nil silently if gocyclo is not installed or fails.
+// Gocyclo adapts gocyclo to measure cyclomatic complexity of Go functions.
+// Executes 'gocyclo -over N' where N is cfg.Thresholds.Cyclomatic, parses text output,
+// and returns findings normalized to model.Finding. Returns ErrToolNotFound if gocyclo
+// is not installed; other errors are non-fatal and silently skipped to enable graceful degradation.
 func Gocyclo(root string, cfg *config.Config) ([]model.Finding, error) {
 	gocycloPath, err := exec.LookPath("gocyclo")
 	if err != nil {
