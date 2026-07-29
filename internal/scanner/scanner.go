@@ -72,6 +72,20 @@ func NewVerbose(cfg *config.Config, w io.Writer) *Scanner {
 	return s
 }
 
+// WithDetectors replaces the default native detectors. Used in tests to inject mocks.
+// Returns the Scanner for method chaining.
+func (s *Scanner) WithDetectors(dets ...namedDetector) *Scanner {
+	s.detectors = dets
+	return s
+}
+
+// WithAdapters replaces the default OSS adapters. Used in tests to inject mocks.
+// Returns the Scanner for method chaining.
+func (s *Scanner) WithAdapters(ads ...namedAdapter) *Scanner {
+	s.dirAdapters = ads
+	return s
+}
+
 func (s *Scanner) logf(format string, args ...any) {
 	fmt.Fprintf(s.log, format+"\n", args...)
 }
