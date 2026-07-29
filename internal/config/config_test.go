@@ -75,3 +75,114 @@ func TestIsExcludedDir(t *testing.T) {
 		}
 	}
 }
+
+func TestValidateNegativeThresholds(t *testing.T) {
+	cases := []struct {
+		name  string
+		setup func(*Config)
+	}{
+		{
+			"negative god_object.methods",
+			func(c *Config) { c.Thresholds.GodObject.Methods = -1 },
+		},
+		{
+			"negative god_object.loc",
+			func(c *Config) { c.Thresholds.GodObject.LOC = -1 },
+		},
+		{
+			"negative function_loc",
+			func(c *Config) { c.Thresholds.FunctionLOC = -1 },
+		},
+		{
+			"negative function_params",
+			func(c *Config) { c.Thresholds.FunctionParams = -1 },
+		},
+		{
+			"negative cyclomatic",
+			func(c *Config) { c.Thresholds.Cyclomatic = -1 },
+		},
+		{
+			"negative cognitive",
+			func(c *Config) { c.Thresholds.Cognitive = -1 },
+		},
+		{
+			"negative magic_min_count",
+			func(c *Config) { c.Thresholds.MagicMinCount = -1 },
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			cfg := Default()
+			tc.setup(cfg)
+			if err := cfg.Validate(); err == nil {
+				t.Error("expected validation error, got nil")
+			}
+		})
+	}
+}
+
+func TestValidateDuplicationPct(t *testing.T) {
+	cases := []struct {
+		value float64
+		valid bool
+	}{
+		{-1, false},
+		{0, true},
+		{5, true},
+		{100, true},
+		{101, false},
+	}
+
+	for _, tc := range cases {
+		cfg := Default()
+		cfg.Thresholds.DuplicationPct = tc.value
+		err := cfg.Validate()
+		if (err == nil) != tc.valid {
+			t.Errorf("duplication_pct=%v: want valid=%v, got error=%v", tc.value, tc.valid, err)
+		}
+	}
+}
+
+func TestValidateSeverities(t *testing.T) {
+	cases := []struct {
+		name     string
+		severity string
+		valid    bool
+	}{
+		{"info", "info", true},
+		{"low", "low", true},
+		{"medium", "medium", true},
+		{"high", "high", true},
+		{"critical", "critical", true},
+		{"invalid", "invalid_severity", false},
+		{"empty", "", true}, // empty is valid (uses default)
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			cfg := Default()
+			cfg.Severities.GodObject = tc.severity
+			err := cfg.Validate()
+			if (err == nil) != tc.valid {
+				t.Errorf("severity=%q: want valid=%v, got error=%v", tc.severity, tc.valid, err)
+			}
+		})
+	}
+}
+
+func TestLoadValidatesConfig(t *testing.T) {
+	dir := t.TempDir()
+	content := `
+thresholds:
+  cyclomatic: -1
+`
+	if err := os.WriteFile(filepath.Join(dir, filename), []byte(content), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	_, err := Load(dir)
+	if err == nil {
+		t.Error("expected validation error when loading config with negative threshold, got nil")
+	}
+}

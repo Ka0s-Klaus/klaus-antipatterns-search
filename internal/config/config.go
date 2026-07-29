@@ -1,11 +1,22 @@
 package config
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 
 	"gopkg.in/yaml.v3"
 )
+
+// ValidationError is returned when config validation fails.
+type ValidationError struct {
+	Field   string
+	Message string
+}
+
+func (e *ValidationError) Error() string {
+	return fmt.Sprintf("invalid config field %q: %s", e.Field, e.Message)
+}
 
 const filename = ".antipatterns.yml"
 
@@ -115,7 +126,66 @@ func Load(root string) (*Config, error) {
 	if err := yaml.Unmarshal(data, cfg); err != nil {
 		return nil, err
 	}
+	// Validate config after loading to catch invalid user-provided values.
+	if err := cfg.Validate(); err != nil {
+		return nil, err
+	}
 	return cfg, nil
+}
+
+// Validate checks that the configuration has valid thresholds, severities, and ranges.
+func (c *Config) Validate() error {
+	// Validate thresholds are non-negative.
+	if c.Thresholds.GodObject.Methods < 0 {
+		return &ValidationError{Field: "thresholds.god_object.methods", Message: "must be non-negative"}
+	}
+	if c.Thresholds.GodObject.LOC < 0 {
+		return &ValidationError{Field: "thresholds.god_object.loc", Message: "must be non-negative"}
+	}
+	if c.Thresholds.FunctionLOC < 0 {
+		return &ValidationError{Field: "thresholds.function_loc", Message: "must be non-negative"}
+	}
+	if c.Thresholds.FunctionParams < 0 {
+		return &ValidationError{Field: "thresholds.function_params", Message: "must be non-negative"}
+	}
+	if c.Thresholds.Cyclomatic < 0 {
+		return &ValidationError{Field: "thresholds.cyclomatic", Message: "must be non-negative"}
+	}
+	if c.Thresholds.Cognitive < 0 {
+		return &ValidationError{Field: "thresholds.cognitive", Message: "must be non-negative"}
+	}
+	if c.Thresholds.DuplicationPct < 0 || c.Thresholds.DuplicationPct > 100 {
+		return &ValidationError{Field: "thresholds.duplication_pct", Message: "must be between 0 and 100"}
+	}
+	if c.Thresholds.MagicMinCount < 0 {
+		return &ValidationError{Field: "thresholds.magic_min_count", Message: "must be non-negative"}
+	}
+
+	// Validate severities are valid.
+	validSeverities := map[string]bool{"info": true, "low": true, "medium": true, "high": true, "critical": true}
+	if c.Severities.GodObject != "" && !validSeverities[c.Severities.GodObject] {
+		return &ValidationError{Field: "severities.god_object", Message: "invalid severity: " + c.Severities.GodObject}
+	}
+	if c.Severities.Cyclomatic != "" && !validSeverities[c.Severities.Cyclomatic] {
+		return &ValidationError{Field: "severities.cyclomatic", Message: "invalid severity: " + c.Severities.Cyclomatic}
+	}
+	if c.Severities.Duplication != "" && !validSeverities[c.Severities.Duplication] {
+		return &ValidationError{Field: "severities.duplication", Message: "invalid severity: " + c.Severities.Duplication}
+	}
+	if c.Severities.CircularDeps != "" && !validSeverities[c.Severities.CircularDeps] {
+		return &ValidationError{Field: "severities.circular_deps", Message: "invalid severity: " + c.Severities.CircularDeps}
+	}
+	if c.Severities.MagicNumbers != "" && !validSeverities[c.Severities.MagicNumbers] {
+		return &ValidationError{Field: "severities.magic_numbers", Message: "invalid severity: " + c.Severities.MagicNumbers}
+	}
+	if c.Severities.LargeFunction != "" && !validSeverities[c.Severities.LargeFunction] {
+		return &ValidationError{Field: "severities.large_function", Message: "invalid severity: " + c.Severities.LargeFunction}
+	}
+	if c.Severities.DeadCode != "" && !validSeverities[c.Severities.DeadCode] {
+		return &ValidationError{Field: "severities.dead_code", Message: "invalid severity: " + c.Severities.DeadCode}
+	}
+
+	return nil
 }
 
 // IsExcludedDir reports whether a directory name matches the exclusion list.
