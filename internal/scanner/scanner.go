@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
+	"log/slog"
 	"path/filepath"
 	"strings"
 
@@ -40,7 +41,8 @@ type Scanner struct {
 	cfg         *config.Config
 	detectors   []namedDetector
 	dirAdapters []namedAdapter
-	log         io.Writer // io.Discard = silent; os.Stderr when --verbose
+	log         io.Writer  // io.Discard = silent; os.Stderr when --verbose
+	logger      *slog.Logger
 }
 
 // New creates a Scanner with default native detectors and OSS adapters, logging disabled.
@@ -59,7 +61,8 @@ func New(cfg *config.Config) *Scanner {
 			{name: "radon", fn: adapter.Radon},
 			{name: "gocyclo", fn: adapter.Gocyclo},
 		},
-		log: io.Discard,
+		log:    io.Discard,
+		logger: slog.New(slog.NewTextHandler(io.Discard, nil)), // silent logger
 	}
 }
 
@@ -69,6 +72,10 @@ func New(cfg *config.Config) *Scanner {
 func NewVerbose(cfg *config.Config, w io.Writer) *Scanner {
 	s := New(cfg)
 	s.log = w
+	// Use structured logging with text handler for readable output.
+	s.logger = slog.New(slog.NewTextHandler(w, &slog.HandlerOptions{
+		Level: slog.LevelDebug,
+	}))
 	return s
 }
 
@@ -86,8 +93,14 @@ func (s *Scanner) WithAdapters(ads ...namedAdapter) *Scanner {
 	return s
 }
 
+// logf logs a message at debug level using structured logging.
+// Falls back to direct io.Writer write if logger is nil (for tests).
 func (s *Scanner) logf(format string, args ...any) {
-	fmt.Fprintf(s.log, format+"\n", args...)
+	if s.logger != nil {
+		s.logger.Debug(fmt.Sprintf(format, args...))
+	} else {
+		fmt.Fprintf(s.log, format+"\n", args...)
+	}
 }
 
 // Run walks the directory tree rooted at root and executes all native detectors on each .go file,
