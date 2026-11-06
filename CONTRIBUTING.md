@@ -1,3 +1,7 @@
+---
+tags: [proyecto/klaus-antipatterns-search, tipo/guia, seguridad/antipatrones]
+---
+
 # 🤝 Contributing to Klaus antipatterns-search
 
 We welcome contributions! This guide shows how to add new detectors, adapters, tests, and fixes.

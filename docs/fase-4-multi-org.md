@@ -1,3 +1,7 @@
+---
+tags: [proyecto/klaus-antipatterns-search, tipo/referencia, seguridad/antipatrones]
+---
+
 # 🌐 Fase 4 — Multi-org Scanner
 
 ## 🤔 ¿Qué hago? ¿Cómo lo hago? ¿Y para qué lo hago?

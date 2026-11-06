@@ -1,3 +1,7 @@
+---
+tags: [proyecto/klaus-antipatterns-search, tipo/referencia, seguridad/antipatrones]
+---
+
 # 🔐 Fase 3 — SARIF Output + GitHub Action
 
 ## 🤔 ¿Qué hago? ¿Cómo lo hago? ¿Y para qué lo hago?

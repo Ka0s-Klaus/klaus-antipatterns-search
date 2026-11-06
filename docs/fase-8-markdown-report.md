@@ -1,3 +1,7 @@
+---
+tags: [proyecto/klaus-antipatterns-search, tipo/reporte, seguridad/antipatrones]
+---
+
 # 📄 Fase 8 — Renderer Markdown: Informes Accionables
 
 ## 🤔 ¿Qué hago? ¿Cómo lo hago? ¿Y para qué lo hago?

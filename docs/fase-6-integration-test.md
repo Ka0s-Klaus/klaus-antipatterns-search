@@ -1,3 +1,7 @@
+---
+tags: [proyecto/klaus-antipatterns-search, tipo/reporte, seguridad/antipatrones]
+---
+
 # 🧪 Fase 6 — Integration Test (Self-scan)
 
 ## 🤔 ¿Qué hago? ¿Cómo lo hago? ¿Y para qué lo hago?

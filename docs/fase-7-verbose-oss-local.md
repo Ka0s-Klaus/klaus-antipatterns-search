@@ -1,3 +1,7 @@
+---
+tags: [proyecto/klaus-antipatterns-search, tipo/referencia, seguridad/antipatrones]
+---
+
 # 🔊 Fase 7 — Verbose Flag + Adaptadores OSS en Local
 
 ## 🤔 ¿Qué hago? ¿Cómo lo hago? ¿Y para qué lo hago?
