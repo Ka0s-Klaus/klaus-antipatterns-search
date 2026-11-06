@@ -1,3 +1,7 @@
+---
+tags: [proyecto/klaus-antipatterns-search, tipo/release, producto/publicacion]
+---
+
 # 📦 Fase 5 — Publicación
 
 ## 🤔 ¿Qué hago? ¿Cómo lo hago? ¿Y para qué lo hago?

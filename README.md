@@ -1,3 +1,7 @@
+---
+tags: [proyecto/klaus-antipatterns-search, tipo/referencia, seguridad/antipatrones]
+---
+
 # 🔍 Klaus antipatterns-search
 
 > Multi-language anti-pattern detector — CLI, GitHub Action and multi-org scanner powered by Go (go/ast nativo) + adaptadores OSS

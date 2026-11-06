@@ -1,3 +1,7 @@
+---
+tags: [proyecto/klaus-antipatterns-search, tipo/referencia, producto/adaptadores]
+---
+
 # 🔌 Fase 2 — Adaptadores OSS
 
 ## 🤔 ¿Qué hago? ¿Cómo lo hago? ¿Y para qué lo hago?
